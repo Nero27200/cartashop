@@ -1,0 +1,12 @@
+[
+  {"id":1,"numero":"001","nom":"Lucas Chevalier","equipe":"LOSC Lille","type":"Gardien","rarete":"Commune","image":"https://via.placeholder.com/300x420/0066cc/ffffff?text=001","prix":0.50},
+  {"id":2,"numero":"002","nom":"Bafode Diakite","equipe":"LOSC Lille","type":"Defense","rarete":"Commune","image":"https://via.placeholder.com/300x420/0066cc/ffffff?text=002","prix":0.30},
+  {"id":3,"numero":"003","nom":"Alexsandro Ribeiro","equipe":"LOSC Lille","type":"Defense","rarete":"Commune","image":"https://via.placeholder.com/300x420/0066cc/ffffff?text=003","prix":0.30},
+  {"id":4,"numero":"004","nom":"Tiago Santos","equipe":"LOSC Lille","type":"Defense","rarete":"Commune","image":"https://via.placeholder.com/300x420/0066cc/ffffff?text=004","prix":0.30},
+  {"id":5,"numero":"005","nom":"Gabriel Gudmundsson","equipe":"LOSC Lille","type":"Defense","rarete":"Commune","image":"https://via.placeholder.com/300x420/0066cc/ffffff?text=005","prix":0.30},
+  {"id":6,"numero":"006","nom":"Benjamin Andre","equipe":"LOSC Lille","type":"Milieu","rarete":"Commune","image":"https://via.placeholder.com/300x420/0066cc/ffffff?text=006","prix":0.30},
+  {"id":7,"numero":"007","nom":"Angel Gomes","equipe":"LOSC Lille","type":"Milieu","rarete":"Commune","image":"https://via.placeholder.com/300x420/0066cc/ffffff?text=007","prix":0.40},
+  {"id":8,"numero":"008","nom":"Remy Cabella","equipe":"LOSC Lille","type":"Milieu","rarete":"Commune","image":"https://via.placeholder.com/300x420/0066cc/ffffff?text=008","prix":0.30},
+  {"id":9,"numero":"009","nom":"Edon Zhegrova","equipe":"LOSC Lille","type":"Attaquant","rarete":"Commune","image":"https://via.placeholder.com/300x420/0066cc/ffffff?text=009","prix":0.40},
+  {"id":10,"numero":"010","nom":"Jonathan David","equipe":"LOSC Lille","type":"Attaquant","rarete":"Commune","image":"https://via.placeholder.com/300x420/0066cc/ffffff?text=010","prix":0.60}
+]
