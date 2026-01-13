@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CartaShop - Collection Panini Adrenalyn XL Ligue 1 2025-26</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; }
+        body { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #fff; min-height: 100vh; }
+        .header { background: rgba(0, 0, 0, 0.3); padding: 20px; border-bottom: 2px solid #3498db; backdrop-filter: blur(10px); }
+        .header h1 { font-size: 28px; color: #3498db; text-align: center; }
+        .tabs { display: flex; justify-content: center; gap: 10px; padding: 20px; background: rgba(0, 0, 0, 0.2); }
+        .tab { padding: 12px 30px; background: rgba(52, 152, 219, 0.2); border: 2px solid #3498db; border-radius: 25px; cursor: pointer; transition: all 0.3s; }
+        .tab.active { background: #3498db; color: #fff; }
+        .tab:hover { background: rgba(52, 152, 219, 0.5); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .filters { background: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 15px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; }
+        .filter-group { flex: 1; min-width: 200px; }
+        .filter-group label { display: block; margin-bottom: 8px; color: #3498db; font-weight: bold; }
+        .filter-group select, .filter-group input { width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #3498db; background: rgba(255, 255, 255, 0.1); color: #fff; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: linear-gradient(135deg, rgba(52, 152, 219, 0.3), rgba(155, 89, 182, 0.3)); padding: 20px; border-radius: 15px; text-align: center; border: 2px solid #3498db; }
+        .stat-card h3 { font-size: 16px; color: #bdc3c7; margin-bottom: 10px; }
+        .stat-card .value { font-size: 32px; color: #3498db; font-weight: bold; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .card { background: linear-gradient(145deg, rgba(44, 62, 80, 0.9), rgba(52, 73, 94, 0.9)); border-radius: 15px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; border: 2px solid #34495e; position: relative; }
+        .card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(52, 152, 219, 0.4); }
+        .card.owned { border-color: #27ae60; box-shadow: 0 0 20px rgba(39, 174, 96, 0.3); }
+        .card-img { width: 100%; height: 280px; object-fit: cover; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 14px; color: rgba(255, 255, 255, 0.6); }
+        .card-info { padding: 15px; }
+        .card-info h3 { font-size: 16px; margin-bottom: 8px; color: #3498db; }
+        .card-info .team { color: #bdc3c7; font-size: 13px; margin-bottom: 5px; }
+        .card-info .rarity { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 10px; }
+        .card-info .rarity.base { background: #95a5a6; }
+        .card-info .rarity.rare { background: #3498db; }
+        .card-info .rarity.super-rare { background: #9b59b6; }
+        .card-info .rarity.limited { background: #e74c3c; }
+        .card-info .price { font-size: 20px; font-weight: bold; color: #f39c12; margin-bottom: 10px; }
+        .card-actions { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .btn-primary { background: #3498db; color: #fff; }
+        .btn-primary:hover { background: #2980b9; }
+        .btn-success { background: #27ae60; color: #fff; }
+        .btn-success:hover { background: #229954; }
+        .hidden { display: none; }
+        @media (max-width: 768px) {
+            .card-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+            .filters { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎴 CartaShop - Collection Panini Adrenalyn XL Ligue 1 2025-26</h1>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('collection')">Ma Collection</div>
+        <div class="tab" onclick="switchTab('catalogue')">Catalogue Complet</div>
+        <div class="tab" onclick="switchTab('ventes')">Mes Ventes</div>
+    </div>
+
+    <div class="container">
+        <div id="collection" class="tab-content">
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Cartes Possédées</h3>
+                    <div class="value" id="owned-count">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Cartes</h3>
+                    <div class="value">471</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Progression</h3>
+                    <div class="value" id="progress">0%</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Valeur Collection</h3>
+                    <div class="value" id="total-value">0€</div>
+                </div>
+            </div>
+            <div class="card-grid" id="collection-grid"></div>
+        </div>
+
+        <div id="catalogue" class="tab-content hidden">
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Recherche</label>
+                    <input type="text" id="search" placeholder="Rechercher une carte..." onkeyup="filterCatalogue()">
+                </div>
+                <div class="filter-group">
+                    <label>Équipe</label>
+                    <select id="team-filter" onchange="filterCatalogue()">
+                        <option value="">Toutes les équipes</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Rareté</label>
+                    <select id="rarity-filter" onchange="filterCatalogue()">
+                        <option value="">Toutes les raretés</option>
+                        <option value="Base">Base</option>
+                        <option value="Rare">Rare</option>
+                        <option value="Super Rare">Super Rare</option>
+                        <option value="Limited">Limited</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-grid" id="catalogue-grid"></div>
+        </div>
+
+        <div id="ventes" class="tab-content hidden">
+            <h2 style="color: #3498db; margin-bottom: 20px;">Mes Cartes à Vendre</h2>
+            <div class="card-grid" id="ventes-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        const cardsDatabase = [
+            {id: 1, name: 'Gianluigi Donnarumma', team: 'Paris Saint-Germain', position: 'Gardien', rarity: 'Rare', price: 3.50, image: ''},
+            {id: 2, name: 'Kylian Mbappé', team: 'Paris Saint-Germain', position: 'Attaquant', rarity: 'Limited', price: 25.00, image: ''},
+            {id: 3, name: 'Alexandre Lacazette', team: 'Olympique Lyonnais', position: 'Attaquant', rarity: 'Rare', price: 4.50, image: ''},
+            {id: 4, name: 'Dimitri Payet', team: 'Olympique de Marseille', position: 'Milieu', rarity: 'Super Rare', price: 8.00, image: ''},
+            {id: 5, name: 'Pierre-Emerick Aubameyang', team: 'Olympique de Marseille', position: 'Attaquant', rarity: 'Rare', price: 5.50, image: ''},
+            {id: 6, name: 'Jonathan David', team: 'LOSC Lille', position: 'Attaquant', rarity: 'Rare', price: 4.00, image: ''},
+            {id: 7, name: 'Martin Terrier', team: 'Stade Rennais', position: 'Attaquant', rarity: 'Base', price: 1.50, image: ''},
+            {id: 8, name: 'Brice Samba', team: 'RC Lens', position: 'Gardien', rarity: 'Base', price: 1.20, image: ''},
+            {id: 9, name: 'Florian Thauvin', team: 'LOSC Lille', position: 'Milieu', rarity: 'Rare', price: 3.80, image: ''},
+            {id: 10, name: 'Warren Zaire-Emery', team: 'Paris Saint-Germain', position: 'Milieu', rarity: 'Super Rare', price: 12.00, image: ''},
+            {id: 11, name: 'Lucas Chevalier', team: 'LOSC Lille', position: 'Gardien', rarity: 'Base', price: 1.00, image: ''},
+            {id: 12, name: 'Wissam Ben Yedder', team: 'AS Monaco', position: 'Attaquant', rarity: 'Rare', price: 3.20, image: ''},
+            {id: 13, name: 'Folarin Balogun', team: 'AS Monaco', position: 'Attaquant', rarity: 'Super Rare', price: 7.50, image: ''},
+            {id: 14, name: 'Chancel Mbemba', team: 'Olympique de Marseille', position: 'Défenseur', rarity: 'Base', price: 0.80, image: ''},
+            {id: 15, name: 'Amine Gouiri', team: 'Stade Rennais', position: 'Attaquant', rarity: 'Rare', price: 3.00, image: ''},
+            {id: 16, name: 'Rayan Cherki', team: 'Olympique Lyonnais', position: 'Milieu', rarity: 'Super Rare', price: 6.50, image: ''},
+            {id: 17, name: 'Bradley Barcola', team: 'Paris Saint-Germain', position: 'Attaquant', rarity: 'Rare', price: 4.20, image: ''},
+            {id: 18, name: 'Pau Lopez', team: 'Olympique de Marseille', position: 'Gardien', rarity: 'Base', price: 1.10, image: ''},
+            {id: 19, name: 'Marquinhos', team: 'Paris Saint-Germain', position: 'Défenseur', rarity: 'Super Rare', price: 9.00, image: ''},
+            {id: 20, name: 'Achraf Hakimi', team: 'Paris Saint-Germain', position: 'Défenseur', rarity: 'Super Rare', price: 10.50, image: ''},
+            {id: 21, name: 'N´Golo Kanté', team: 'Paris Saint-Germain', position: 'Milieu', rarity: 'Limited', price: 15.00, image: ''},
+            {id: 22, name: 'Ousmane Dembélé', team: 'Paris Saint-Germain', position: 'Attaquant', rarity: 'Limited', price: 18.00, image: ''},
+            {id: 23, name: 'Vitinha', team: 'Paris Saint-Germain', position: 'Milieu', rarity: 'Rare', price: 4.80, image: ''},
+            {id: 24, name: 'Goncalo Ramos', team: 'Paris Saint-Germain', position: 'Attaquant', rarity: 'Rare', price: 3.90, image: ''},
+            {id: 25, name: 'Steve Mandanda', team: 'Stade Rennais', position: 'Gardien', rarity: 'Base', price: 0.90, image: ''},
+            {id: 26, name: 'Arnaud Kalimuendo', team: 'Stade Rennais', position: 'Attaquant', rarity: 'Rare', price: 2.80, image: ''},
+            {id: 27, name: 'Corentin Tolisso', team: 'Olympique Lyonnais', position: 'Milieu', rarity: 'Rare', price: 2.50, image: ''},
+            {id: 28, name: 'Jake O’Brien', team: 'Olympique Lyonnais', position: 'Défenseur', rarity: 'Base', price: 1.30, image: ''},
+            {id: 29, name: 'Mama Balde', team: 'Troyes AC', position: 'Attaquant', rarity: 'Base', price: 0.70, image: ''},
+            {id: 30, name: 'Elye Wahi', team: 'RC Lens', position: 'Attaquant', rarity: 'Rare', price: 3.40, image: ''},
+        ];
+
+        let myCollection = JSON.parse(localStorage.getItem('myCollection')) || [];
+        let mySales = JSON.parse(localStorage.getItem('mySales')) || [];
+
+        function saveData() {
+            localStorage.setItem('myCollection', JSON.stringify(myCollection));
+            localStorage.setItem('mySales', JSON.stringify(mySales));
+        }
+
+        function createCardHTML(card, isOwned, forSale) {
+            return `
+                <div class="card ${isOwned ? 'owned' : ''}">
+                    <div class="card-img">
+                        ${card.image ? `<img src="${card.image}" alt="${card.name}">` : `<div>${card.name}</div>`}
+                    </div>
+                    <div class="card-info">
+                        <h3>${card.name}</h3>
+                        <div class="team">👕 ${card.team}</div>
+                        <div class="team">⚽ ${card.position}</div>
+                        <span class="rarity ${card.rarity.toLowerCase().replace(' ', '-')}">${card.rarity}</span>
+                        <div class="price">${card.price.toFixed(2)}€</div>
+                        <div class="card-actions">
+                            ${!isOwned ? 
+                                `<button class="btn btn-success" onclick="addToCollection(${card.id})">Ajouter</button>` :
+                                `<button class="btn btn-primary" onclick="removeFromCollection(${card.id})">Retirer</button>
+                                 ${!forSale ? `<button class="btn btn-primary" onclick="addToSales(${card.id})">Vendre</button>` : 
+                                             `<button class="btn btn-success" onclick="removeFromSales(${card.id})">Annuler vente</button>`}`
+                            }
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateStats() {
+            document.getElementById('owned-count').textContent = myCollection.length;
+            const progress = ((myCollection.length / cardsDatabase.length) * 100).toFixed(1);
+            document.getElementById('progress').textContent = progress + '%';
+            const totalValue = myCollection.reduce((sum, id) => {
+                const card = cardsDatabase.find(c => c.id === id);
+                return sum + (card ? card.price : 0);
+            }, 0);
+            document.getElementById('total-value').textContent = totalValue.toFixed(2) + '€';
+        }
+
+        function renderCollection() {
+            const grid = document.getElementById('collection-grid');
+            if (myCollection.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #bdc3c7; padding: 40px;">Votre collection est vide. Ajoutez des cartes depuis le catalogue !</p>';
+                return;
+            }
+            grid.innerHTML = myCollection.map(id => {
+                const card = cardsDatabase.find(c => c.id === id);
+                return card ? createCardHTML(card, true, mySales.includes(id)) : '';
+            }).join('');
+        }
+
+        function renderCatalogue() {
+            const grid = document.getElementById('catalogue-grid');
+            grid.innerHTML = cardsDatabase.map(card => {
+                const isOwned = myCollection.includes(card.id);
+                return createCardHTML(card, isOwned, mySales.includes(card.id));
+            }).join('');
+            populateFilters();
+        }
+
+        function renderSales() {
+            const grid = document.getElementById('ventes-grid');
+            if (mySales.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #bdc3c7; padding: 40px;">Aucune carte en vente. Ajoutez des cartes depuis votre collection !</p>';
+                return;
+            }
+            grid.innerHTML = mySales.map(id => {
+                const card = cardsDatabase.find(c => c.id === id);
+                return card ? createCardHTML(card, true, true) : '';
+            }).join('');
+        }
+
+        function addToCollection(cardId) {
+            if (!myCollection.includes(cardId)) {
+                myCollection.push(cardId);
+                saveData();
+                updateStats();
+                renderCollection();
+                renderCatalogue();
+            }
+        }
+
+        function removeFromCollection(cardId) {
+            myCollection = myCollection.filter(id => id !== cardId);
+            mySales = mySales.filter(id => id !== cardId);
+            saveData();
+            updateStats();
+            renderCollection();
+            renderCatalogue();
+            renderSales();
+        }
+
+        function addToSales(cardId) {
+            if (!mySales.includes(cardId)) {
+                mySales.push(cardId);
+                saveData();
+                renderCollection();
+                renderSales();
+                renderCatalogue();
+            }
+        }
+
+        function removeFromSales(cardId) {
+            mySales = mySales.filter(id => id !== cardId);
+            saveData();
+            renderCollection();
+            renderSales();
+            renderCatalogue();
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.remove('hidden');
+        }
+
+        function populateFilters() {
+            const teams = [...new Set(cardsDatabase.map(c => c.team))];
+            const teamFilter = document.getElementById('team-filter');
+            const currentValue = teamFilter.value;
+            teamFilter.innerHTML = '<option value="">Toutes les équipes</option>' + 
+                teams.map(team => `<option value="${team}">${team}</option>`).join('');
+            teamFilter.value = currentValue;
+        }
+
+        function filterCatalogue() {
+            const searchTerm = document.getElementById('search').value.toLowerCase();
+            const teamFilter = document.getElementById('team-filter').value;
+            const rarityFilter = document.getElementById('rarity-filter').value;
+
+            const filtered = cardsDatabase.filter(card => {
+                const matchesSearch = card.name.toLowerCase().includes(searchTerm) || 
+                                      card.team.toLowerCase().includes(searchTerm);
+                const matchesTeam = !teamFilter || card.team === teamFilter;
+                const matchesRarity = !rarityFilter || card.rarity === rarityFilter;
+                return matchesSearch && matchesTeam && matchesRarity;
+            });
+
+            const grid = document.getElementById('catalogue-grid');
+            grid.innerHTML = filtered.map(card => {
+                const isOwned = myCollection.includes(card.id);
+                return createCardHTML(card, isOwned, mySales.includes(card.id));
+            }).join('');
+        }
+
+        updateStats();
+        renderCollection();
+        renderCatalogue();
+        renderSales();
+    </script>
+</body>
+</html>
