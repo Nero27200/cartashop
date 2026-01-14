@@ -2,7 +2,7 @@
   "collection": {
     "name": "Panini Adrenalyn XL Ligue 1 McDonald's 2025-26",
     "season": "2025-2026",
-    "total_cards": 471,
+    "total_cards": 441,
     "release_date": "2025-09",
     "editor": "Panini",
     "country": "France"
@@ -402,6 +402,19 @@
 {"number":321,"name":"Djibril Sidibé","club":"Toulouse FC","type":"Base","position":"def","price_avg":0.50,"price_min":0.20,"price_max":1.00},
 {"number":322,"name":"Gabriel Suazo","club":"Toulouse FC","type":"Base","position":"def","price_avg":0.50,"price_min":0.20,"price_max":1.00},
 {"number":323,"name":"Cristian Cásseres Jr.","club":"Toulouse FC","type":"Base","position":"mil","price_avg":0.50,"price_min":0.20,"price_max":1.00},
+{"number":324,"name":"Vincent Sierro","club":"Toulouse FC","type":"Base","position":"mil","price_avg":0.50,"price_min":0.20,"price_max":1.00},
+{"number":325,"name":"Niklas Schmidt","club":"Toulouse FC","type":"Base","position":"mil","price_avg":0.50,"price_min":0.20,"price_max":1.00},
+{"number":326,"name":"Aron Dønnum","club":"Toulouse FC","type":"Base","position":"mil","price_avg":0.50,"price_min":0.20,"price_max":1.00},
+{"number":327,"name":"Miha Zajc","club":"Toulouse FC","type":"Base","position":"mil","price_avg":0.50,"price_min":0.20,"price_max":1.00},
+{"number":328,"name":"Yann Gboho","club":"Toulouse FC","type":"Base","position":"att","price_avg":0.50,"price_min":0.20,"price_max":1.00},
+{"number":329,"name":"Shavy Babicka","club":"Toulouse FC","type":"Base","position":"att","price_avg":0.50,"price_min":0.20,"price_max":1.00},
+{"number":330,"name":"Zakaria Aboukhlal","club":"Toulouse FC","type":"Base","position":"att","price_avg":0.50,"price_min":0.20,"price_max":1.00},
+{"number":331,"name":"Warren Kamanzi","club":"Toulouse FC","type":"Base","position":"att","price_avg":0.50,"price_min":0.20,"price_max":1.00},
+{"number":332,"name":"Joshua King","club":"Toulouse FC","type":"Base","position":"att","price_avg":0.50,"price_min":0.20,"price_max":1.00},
+{"number":333,"name":"Frank Magri","club":"Toulouse FC","type":"Base","position":"att","price_avg":0.50,"price_min":0.20,"price_max":1.00},
+
+
+    
 
 
     
