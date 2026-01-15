@@ -64,7 +64,7 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         nav button:hover,
@@ -143,7 +143,8 @@
             font-weight: 600;
             cursor: pointer;
             font-size: 1rem;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, background 0.3s ease;
+            will-change: transform;
         }
 
         .btn-primary {
@@ -185,13 +186,14 @@
             box-shadow: 0 16px 48px rgba(26, 115, 232, 0.25);
             max-width: 100%;
             border: 3px solid var(--card-glow);
-            transition: all 0.3s ease;
-            transform: perspective(1000px) rotateY(-5deg);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transform: translateZ(0); /* GPU acceleration */
+            will-change: transform;
             background: linear-gradient(135deg, #f5f7ff 0%, #e8f0ff 100%);
         }
 
         .card-image-preview:hover {
-            transform: perspective(1000px) rotateY(0deg) translateY(-8px);
+            transform: translateY(-8px) translateZ(0);
             box-shadow: 0 24px 64px rgba(26, 115, 232, 0.35);
         }
 
@@ -305,12 +307,13 @@
             font-weight: 700;
             cursor: pointer;
             font-size: 1rem;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             position: relative;
             overflow: hidden;
+            will-change: transform;
         }
 
         .action-buttons button::before {
@@ -452,12 +455,13 @@
             border-radius: 14px;
             overflow: hidden;
             box-shadow: 0 6px 16px rgba(26, 115, 232, 0.12);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
             border: 2px solid rgba(26, 115, 232, 0.1);
+            will-change: transform;
         }
 
         .card-item:hover {
-            transform: translateY(-12px) scale(1.02);
+            transform: translateY(-8px) scale(1.01) translateZ(0);
             box-shadow: 0 12px 32px rgba(26, 115, 232, 0.25);
             border-color: var(--primary);
         }
@@ -521,9 +525,10 @@
             box-shadow: 0 6px 16px rgba(26, 115, 232, 0.12);
             text-align: center;
             border: 2px solid rgba(26, 115, 232, 0.1);
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
             position: relative;
             overflow: hidden;
+            will-change: transform;
         }
 
         .stat-card::before {
@@ -537,7 +542,7 @@
         }
 
         .stat-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-6px) translateZ(0);
             box-shadow: 0 12px 32px rgba(26, 115, 232, 0.25);
             border-color: var(--primary);
         }
@@ -762,8 +767,7 @@
         }
 
         function getFallbackData() {
-            // Aucune donnée intégrée - l'app charge depuis une source externe
-            // Tu dois fournir un fichier JSON ou CSV avec les cartes Panini
+            // Deprecated - data is now loaded from external JSON/CSV files
             return [];
         }
 
@@ -775,16 +779,15 @@
 
         // Initialisation au chargement
         window.addEventListener('load', () => {
-            loadCardsData().then(() => {
-                cameraBtn.addEventListener('click', startCamera);
+            loadCardsData();
+            cameraBtn.addEventListener('click', startCamera);
             uploadBtn.addEventListener('click', () => uploadInput.click());
             uploadInput.addEventListener('change', handleImageUpload);
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const section = e.target.getAttribute('data-section');
-                    showSection(section);
-                });
-            });
+        });
+
+        // Cleanup camera resources when page is unloaded
+        window.addEventListener('beforeunload', () => {
+            stopCameraStream();
         });
 
         async function startCamera() {
@@ -859,6 +862,7 @@
 
         async function analyzeCardWithOCR() {
             showLoading(true);
+            // Reduced artificial delay for better UX - card detection is instant
             setTimeout(() => {
                 const detectedCard = smartCardDetection();
                 showLoading(false);
@@ -868,7 +872,7 @@
                 } else {
                     displayNoMatch();
                 }
-            }, 1200);
+            }, 300);
         }
 
         function findCardByOCR(text) {
@@ -912,7 +916,7 @@
                 } else {
                     displayNoMatch();
                 }
-            }, 1000);
+            }, 200);
         }
 
         function smartCardDetection() {
@@ -1000,7 +1004,11 @@
             cameraBtn.disabled = false;
             cameraBtn.onclick = startCamera;
             
-            // Arrêter la caméra proprement
+            // Arrêter la caméra proprement et libérer les ressources
+            stopCameraStream();
+        }
+
+        function stopCameraStream() {
             if (videoFeed.srcObject) {
                 const tracks = videoFeed.srcObject.getTracks();
                 tracks.forEach(track => {
@@ -1037,15 +1045,39 @@
             }
         }
 
+        // Cache for DOM queries
+        const domCache = {
+            sections: null,
+            navButtons: null,
+            get allSections() {
+                if (!this.sections) {
+                    this.sections = document.querySelectorAll('.section');
+                }
+                return this.sections;
+            },
+            get allNavButtons() {
+                if (!this.navButtons) {
+                    this.navButtons = document.querySelectorAll('.nav-btn');
+                }
+                return this.navButtons;
+            }
+        };
+
         function showSection(sectionId) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            domCache.allSections.forEach(s => s.classList.remove('active'));
+            domCache.allNavButtons.forEach(b => b.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
             document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
 
+            // Only render section content when it becomes active
             if (sectionId === 'basket') renderBasket();
             if (sectionId === 'collection') renderCollection();
             if (sectionId === 'stats') renderStats();
+        }
+
+        // Cached calculations
+        function getBasketTotal() {
+            return basket.reduce((sum, c) => sum + c.sellPrice, 0);
         }
 
         function renderBasket() {
@@ -1061,18 +1093,20 @@
                 return;
             }
 
-            const total = basket.reduce((sum, c) => sum + c.sellPrice, 0);
+            const total = getBasketTotal();
+            const basketItems = basket.map(card => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border);">
+                    <div>
+                        <div style="font-weight: 600;">${card.name}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-light);">${card.club}</div>
+                    </div>
+                    <div style="font-weight: 700; color: var(--primary); font-size: 1.1rem;">€${card.sellPrice.toFixed(2)}</div>
+                </div>
+            `).join('');
+            
             container.innerHTML = `
                 <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                    ${basket.map(card => `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border);">
-                            <div>
-                                <div style="font-weight: 600;">${card.name}</div>
-                                <div style="font-size: 0.85rem; color: var(--text-light);">${card.club}</div>
-                            </div>
-                            <div style="font-weight: 700; color: var(--primary); font-size: 1.1rem;">€${card.sellPrice.toFixed(2)}</div>
-                        </div>
-                    `).join('')}
+                    ${basketItems}
                     <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 1.5rem; border-radius: 12px; margin-top: 1.5rem; text-align: center;">
                         <div>Revenus totaux</div>
                         <div style="font-size: 2rem; font-weight: 700; margin: 1rem 0;">€${total.toFixed(2)}</div>
@@ -1104,6 +1138,7 @@
             const container = document.getElementById('statsContainer');
             const clubCount = new Set(cardsDatabase.map(c => c.club)).size;
             const collectedClubs = new Set(collection.map(c => c.club)).size;
+            const basketTotal = getBasketTotal();
 
             container.innerHTML = `
                 <div class="stat-card">
@@ -1119,7 +1154,7 @@
                     <div class="stat-label">Cartes à vendre</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">€${basket.reduce((s, c) => s + c.sellPrice, 0).toFixed(2)}</div>
+                    <div class="stat-number">€${basketTotal.toFixed(2)}</div>
                     <div class="stat-label">Revenus potentiels</div>
                 </div>
                 <div class="stat-card">
@@ -1138,12 +1173,13 @@
             if (!show) document.getElementById('resultContent').style.display = 'block';
         }
 
+        let loadingOverlay = null; // Cache loading overlay element
+
         function showLoadingOverlay(show) {
-            let overlay = document.getElementById('loadingOverlay');
-            if (!overlay && show) {
-                overlay = document.createElement('div');
-                overlay.id = 'loadingOverlay';
-                overlay.style.cssText = `
+            if (!loadingOverlay && show) {
+                loadingOverlay = document.createElement('div');
+                loadingOverlay.id = 'loadingOverlay';
+                loadingOverlay.style.cssText = `
                     position: fixed;
                     top: 0;
                     left: 0;
@@ -1155,17 +1191,17 @@
                     justify-content: center;
                     z-index: 2000;
                 `;
-                overlay.innerHTML = `
+                loadingOverlay.innerHTML = `
                     <div style="background: white; padding: 2rem; border-radius: 12px; text-align: center;">
                         <div style="border: 4px solid var(--light); border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
                         <p style="color: var(--text-light);">Chargement des cartes Panini...</p>
                     </div>
                 `;
-                document.body.appendChild(overlay);
+                document.body.appendChild(loadingOverlay);
             }
             
-            if (overlay) {
-                overlay.style.display = show ? 'flex' : 'none';
+            if (loadingOverlay) {
+                loadingOverlay.style.display = show ? 'flex' : 'none';
             }
         }
 
@@ -1185,7 +1221,9 @@
             `;
             notif.textContent = message;
             document.body.appendChild(notif);
-            setTimeout(() => notif.remove(), 3000);
+            setTimeout(() => {
+                notif.remove(); // Properly remove element from DOM to prevent memory leak
+            }, 3000);
         }
 
         // Navigation
