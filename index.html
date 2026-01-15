@@ -87,11 +87,18 @@
         .section.active {
             display: block;
             animation: fadeIn 0.3s ease;
+            will-change: opacity, transform;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { 
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* SCANNER SECTION */
@@ -240,7 +247,7 @@
             background: linear-gradient(90deg, rgba(26, 115, 232, 0.05) 0%, transparent 100%);
             border-radius: 10px;
             border-left: 4px solid var(--primary);
-            transition: all 0.2s ease;
+            transition: background 0.2s ease, transform 0.2s ease;
         }
 
         .detail-row:hover {
@@ -406,6 +413,7 @@
             transition: width 0.5s ease;
             border-radius: 8px;
             box-shadow: 0 0 12px rgba(26, 115, 232, 0.4);
+            will-change: width;
         }
 
         .loading {
@@ -662,6 +670,9 @@
         let currentImage = null;
         let currentCard = null;
         let appReady = false;
+        
+        // Cache for base cards to avoid repeated filtering
+        let baseCardsCache = null;
 
         // Charger les données depuis le même domaine (automatique)
         async function loadCardsData() {
@@ -693,6 +704,9 @@
                 cardsDatabase = cards;
                 appReady = true;
                 showLoadingOverlay(false);
+                
+                // Pre-cache base cards for faster detection
+                baseCardsCache = cards.filter(c => c.type === 'Base');
                 
                 if (cards.length > 0) {
                     showNotification(`✅ ${cards.length} cartes chargées automatiquement!`);
@@ -921,10 +935,14 @@
 
         function smartCardDetection() {
             // Sélectionner aléatoirement une carte des 10 premières disponibles
-            const baseCards = cardsDatabase.filter(c => c.type === 'Base');
-            if (baseCards.length > 0) {
-                const randomIdx = Math.floor(Math.random() * Math.min(5, baseCards.length));
-                return baseCards[randomIdx];
+            // Cache base cards to avoid repeated filtering
+            if (!baseCardsCache) {
+                baseCardsCache = cardsDatabase.filter(c => c.type === 'Base');
+            }
+            
+            if (baseCardsCache.length > 0) {
+                const randomIdx = Math.floor(Math.random() * Math.min(5, baseCardsCache.length));
+                return baseCardsCache[randomIdx];
             }
             return cardsDatabase[0] || null;
         }
@@ -932,6 +950,9 @@
         function displayCardResult(card) {
             const confidence = 85 + Math.random() * 15; // 85-100%
             const emoji = getEmojiForPosition(card.position);
+
+            // Store current card to avoid JSON parsing in onclick
+            currentCard = card;
 
             const html = `
                 <div class="card-image-preview">
@@ -970,15 +991,14 @@
                     </div>
 
                     <div class="action-buttons">
-                        <button class="btn-add-basket" onclick="addToBasket(${JSON.stringify(card).replace(/"/g, '&quot;')})">💰 Vendre</button>
-                        <button class="btn-add-collection" onclick="addToCollection(${JSON.stringify(card).replace(/"/g, '&quot;')})">🏆 Garder</button>
+                        <button class="btn-add-basket" onclick="addToBasket()">💰 Vendre</button>
+                        <button class="btn-add-collection" onclick="addToCollection()">🏆 Garder</button>
                         <button class="btn-back" onclick="goBackToScanner()">← Retour</button>
                     </div>
                 </div>
             `;
 
             document.getElementById('resultContent').innerHTML = html;
-            currentCard = card;
         }
 
         function displayNoMatch() {
@@ -1023,8 +1043,10 @@
             return map[pos] || '⚽';
         }
 
-        function addToBasket(cardJSON) {
-            const card = JSON.parse(cardJSON);
+        function addToBasket() {
+            const card = currentCard;
+            if (!card) return;
+            
             if (!basket.find(c => c.number === card.number)) {
                 basket.push({...card, sellPrice: card.price_avg});
                 showNotification(`${card.name} ajouté à la vente!`);
@@ -1034,8 +1056,10 @@
             }
         }
 
-        function addToCollection(cardJSON) {
-            const card = JSON.parse(cardJSON);
+        function addToCollection() {
+            const card = currentCard;
+            if (!card) return;
+            
             if (!collection.find(c => c.number === card.number)) {
                 collection.push(card);
                 showNotification(`${card.name} ajouté à ta collection! ✓`);
@@ -1226,12 +1250,12 @@
             }, 3000);
         }
 
-        // Navigation
+        // Navigation avec event delegation pour meilleure performance
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const section = e.target.getAttribute('data-section');
                 showSection(section);
-            });
+            }, { passive: true });
         });
     </script>
 </body>
