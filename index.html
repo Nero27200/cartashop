@@ -792,11 +792,19 @@
         const scannerDisplay = document.getElementById('scannerDisplay');
 
         // Initialisation au chargement
-        window.addEventListener('load', () => {
-            loadCardsData();
+        window.addEventListener('load', async () => {
+            await loadCardsData();
             cameraBtn.addEventListener('click', startCamera);
             uploadBtn.addEventListener('click', () => uploadInput.click());
             uploadInput.addEventListener('change', handleImageUpload);
+            
+            // Navigation avec event delegation pour meilleure performance
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const section = e.target.getAttribute('data-section');
+                    showSection(section);
+                }, { passive: true });
+            });
         });
 
         // Cleanup camera resources when page is unloaded
@@ -1043,8 +1051,7 @@
             return map[pos] || '⚽';
         }
 
-        function addToBasket() {
-            const card = currentCard;
+        function addToBasket(card = currentCard) {
             if (!card) return;
             
             if (!basket.find(c => c.number === card.number)) {
@@ -1056,8 +1063,7 @@
             }
         }
 
-        function addToCollection() {
-            const card = currentCard;
+        function addToCollection(card = currentCard) {
             if (!card) return;
             
             if (!collection.find(c => c.number === card.number)) {
@@ -1249,14 +1255,6 @@
                 notif.remove(); // Properly remove element from DOM to prevent memory leak
             }, 3000);
         }
-
-        // Navigation avec event delegation pour meilleure performance
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const section = e.target.getAttribute('data-section');
-                showSection(section);
-            }, { passive: true });
-        });
     </script>
 </body>
 </html>
