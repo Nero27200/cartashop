@@ -64,7 +64,7 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
 
         nav button:hover,
@@ -468,7 +468,7 @@
         }
 
         .card-item:hover {
-            transform: translateY(-8px) scale(1.01);
+            transform: translateY(-8px);
             box-shadow: 0 12px 32px rgba(26, 115, 232, 0.25);
             border-color: var(--primary);
         }
@@ -705,6 +705,7 @@
                 showLoadingOverlay(false);
                 
                 // Pre-cache base cards for faster detection
+                // Note: Cache will be invalidated if cardsDatabase is reloaded
                 baseCardsCache = cards.filter(c => c.type === 'Base');
                 
                 if (cards.length > 0) {
