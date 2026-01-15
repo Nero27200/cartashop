@@ -883,17 +883,15 @@
 
         async function analyzeCardWithOCR() {
             showLoading(true);
-            // Reduced artificial delay for better UX - card detection is instant
-            setTimeout(() => {
-                const detectedCard = smartCardDetection();
-                showLoading(false);
-                
-                if (detectedCard) {
-                    displayCardResult(detectedCard);
-                } else {
-                    displayNoMatch();
-                }
-            }, 300);
+            // Card detection is instant - no artificial delay needed
+            const detectedCard = smartCardDetection();
+            showLoading(false);
+            
+            if (detectedCard) {
+                displayCardResult(detectedCard);
+            } else {
+                displayNoMatch();
+            }
         }
 
         function findCardByOCR(text) {
@@ -928,16 +926,14 @@
 
         function fallbackRecognition() {
             // Si OCR échoue, utiliser une détection intelligente par analyse d'image
-            setTimeout(() => {
-                showLoading(false);
-                const card = smartCardDetection();
-                
-                if (card) {
-                    displayCardResult(card);
-                } else {
-                    displayNoMatch();
-                }
-            }, 200);
+            showLoading(false);
+            const card = smartCardDetection();
+            
+            if (card) {
+                displayCardResult(card);
+            } else {
+                displayNoMatch();
+            }
         }
 
         function smartCardDetection() {
@@ -1050,6 +1046,10 @@
             return map[pos] || '⚽';
         }
 
+        /**
+         * Add a card to the basket for sale
+         * @param {Object} card - The card object to add. If not provided, uses currentCard from global state
+         */
         function addToBasket(card) {
             // Use currentCard if no card provided (for onclick handlers)
             if (!card) {
@@ -1066,6 +1066,10 @@
             }
         }
 
+        /**
+         * Add a card to the user's collection
+         * @param {Object} card - The card object to add. If not provided, uses currentCard from global state
+         */
         function addToCollection(card) {
             // Use currentCard if no card provided (for onclick handlers)
             if (!card) {
@@ -1082,10 +1086,11 @@
             }
         }
 
-        // Cache for DOM queries
+        // Cache for DOM queries and elements
         const domCache = {
             sections: null,
             navButtons: null,
+            loadingOverlay: null,
             get allSections() {
                 if (!this.sections) {
                     this.sections = document.querySelectorAll('.section');
@@ -1210,13 +1215,11 @@
             if (!show) document.getElementById('resultContent').style.display = 'block';
         }
 
-        let loadingOverlay = null; // Cache loading overlay element
-
         function showLoadingOverlay(show) {
-            if (!loadingOverlay && show) {
-                loadingOverlay = document.createElement('div');
-                loadingOverlay.id = 'loadingOverlay';
-                loadingOverlay.style.cssText = `
+            if (!domCache.loadingOverlay && show) {
+                domCache.loadingOverlay = document.createElement('div');
+                domCache.loadingOverlay.id = 'loadingOverlay';
+                domCache.loadingOverlay.style.cssText = `
                     position: fixed;
                     top: 0;
                     left: 0;
@@ -1228,17 +1231,17 @@
                     justify-content: center;
                     z-index: 2000;
                 `;
-                loadingOverlay.innerHTML = `
+                domCache.loadingOverlay.innerHTML = `
                     <div style="background: white; padding: 2rem; border-radius: 12px; text-align: center;">
                         <div style="border: 4px solid var(--light); border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
                         <p style="color: var(--text-light);">Chargement des cartes Panini...</p>
                     </div>
                 `;
-                document.body.appendChild(loadingOverlay);
+                document.body.appendChild(domCache.loadingOverlay);
             }
             
-            if (loadingOverlay) {
-                loadingOverlay.style.display = show ? 'flex' : 'none';
+            if (domCache.loadingOverlay) {
+                domCache.loadingOverlay.style.display = show ? 'flex' : 'none';
             }
         }
 
