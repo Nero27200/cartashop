@@ -17,7 +17,7 @@ async function loadCards() {
     if (!response.ok) throw new Error('Erreur HTTP: ' + response.status);
     
     const data = await response.json();
-    AppState.allCards = data.cards || data; // Support nested or flat JSON
+    AppState.allCards = (Array.isArray(data.cards) ? data.cards : (Array.isArray(data) ? data : [])); // Support nested or flat JSON
     console.log(`[CartaShop] ${AppState.allCards.length} cartes chargees`);
     
     initializeApp();
