@@ -148,6 +148,11 @@
             {id: 29, name: 'Mama Balde', team: 'Troyes AC', position: 'Attaquant', rarity: 'Base', price: 0.70, image: ''},
             {id: 30, name: 'Elye Wahi', team: 'RC Lens', position: 'Attaquant', rarity: 'Rare', price: 3.40, image: ''},
         ];
+        
+fetch('./cards.json')
+  .then(r => r.json())
+  .then(data => { cardsDatabase = data.cards || []; populateCatalogue(); })
+  .catch(e => console.error('Erreur cartes:', e));
 
         let myCollection = JSON.parse(localStorage.getItem('myCollection')) || [];
         let mySales = JSON.parse(localStorage.getItem('mySales')) || [];
