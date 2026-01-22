@@ -1,54 +1,129 @@
 @echo off
-setlocal ENABLEDELAYEDEXPANSION
+REM ====================================================
+REM CartaShop - Lanceur Application Web v2.0 Optimisee
+REM ====================================================
+REM Script d'lancement securise pour Windows
+REM - Verifie les fichiers requis
+REM - Lance un serveur HTTP local
+REM - Ouvre automatiquement dans le navigateur
+REM ====================================================
 
-rem ==========================================
-rem  Lancement securise de CataShop en local
-rem  - Port configurable (defaut 8000)
-rem  - Bind 127.0.0.1 uniquement (pas d'acces externe)
-rem ==========================================
+setlocal enabledelayedexpansion
 
-set "PORT=%~1"
-if "%PORT%"=="" set "PORT=8000"
-
-rem === Aller dans le dossier du projet ===
-cd /d "%~dp0"
-
-rem === Vérifier les fichiers requis ===
-if not exist "CataShop.html" (
-    echo [ERREUR] Fichier CataShop.html introuvable dans %cd%.
-    pause
-    exit /b 1
-)
-if not exist "cards.json" (
-    echo [ERREUR] Fichier cards.json introuvable dans %cd%.
-    pause
-    exit /b 1
-)
-
-rem === Vérifier que Python est installé ===
-where python >nul 2>nul
-if errorlevel 1 (
-    echo [ERREUR] Python n'est pas installe ou n'est pas dans le PATH.
-    echo Installe Python depuis https://www.python.org/ puis relance ce script.
-    pause
-    exit /b 1
-)
-
-rem === Lancer un serveur HTTP local securise (loopback uniquement) ===
-echo Lancement du serveur local sur http://localhost:%PORT% ...
-start "CataShop Server" /B python -m http.server %PORT% --bind 127.0.0.1
-
-rem === Petite pause pour laisser le serveur demarrer ===
-timeout /t 2 /nobreak >nul
-
-rem === Ouvrir automatiquement l'application dans le navigateur par defaut ===
-start "" "http://localhost:%PORT%/CataShop.html"
-
+REM Couleurs et affichage
 echo.
-echo CataShop est lance dans ton navigateur sur http://localhost:%PORT%/CataShop.html
-echo Le serveur est lie a 127.0.0.1 uniquement (pas accessible depuis l'exterieur).
-echo Laisse cette fenetre ouverte si tu veux garder le message; le serveur tourne en tache de fond.
-echo Pour changer de port: start_cartashop.bat 8001
-pause >nul
+echo ========================================
+echo.  CartaShop v2.0 - Collection Manager
+echo ========================================
+echo.
 
-endlocal
+REM Configuration du port
+set "PORT=8080"
+if "%XPORT%"==\"\" set "PORT=8000"
+
+REM === Verification des fichiers necessaires ===
+echo [*] Verification des fichiers requis...
+
+if not exist "index.html" (
+    echo [ERREUR] Fichier 'index.html' introuvable!
+    echo Assurez-vous que vous etes dans le dossier CartaShop.
+    pause
+    exit /b 1
+)
+
+if not exist "cards.json" (
+    echo [ERREUR] Fichier 'cards.json' introuvable!
+    echo La base de donnees des cartes est requise.
+    pause
+    exit /b 1
+)
+
+if not exist "app-optimized.js" (
+    echo [ERREUR] Fichier 'app-optimized.js' introuvable!
+    echo Veuillez vous assurer que la version optimisee est presente.
+    pause
+    exit /b 1
+)
+
+if not exist "style.css" (
+    echo [ERREUR] Fichier 'style.css' introuvable!
+    echo Les styles CSS sont necessaires.
+    pause
+    exit /b 1
+)
+
+echo [OK] Tous les fichiers requis sont presents!
+echo.
+
+REM === Lancer le serveur HTTP ===
+echo [*] Lancement du serveur HTTP sur le port %PORT%...
+echo.
+
+REM Essayer avec Python 3 (priorite)
+where python >nul 2>nul
+if %ERRORLEVEL% EQU 0 (
+    echo [OK] Python detecte!
+    echo.
+    echo Serveur CartaShop demarre sur http://localhost:%PORT%
+    echo Appuyez sur CTRL+C pour arreter le serveur.
+    echo.
+    
+    start "CartaShop Server" http://localhost:%PORT%/index.html
+    python -m http.server %PORT%
+    goto END
+)
+
+REM Essayer avec PHP
+where php >nul 2>nul
+if %ERRORLEVEL% EQU 0 (
+    echo [OK] PHP detecte!
+    echo.
+    echo Serveur CartaShop demarre sur http://localhost:%PORT%
+    echo Appuyez sur CTRL+C pour arreter le serveur.
+    echo.
+    
+    start "CartaShop Server" http://localhost:%PORT%/index.html
+    php -S localhost:%PORT%
+    goto END
+)
+
+REM Essayer avec Node.js
+where node >nul 2>nul
+if %ERRORLEVEL% EQU 0 (
+    echo [OK] Node.js detecte!
+    echo Installation du serveur HTTP simple...
+    npm list -g http-server >nul 2>nul
+    if %ERRORLEVEL% NEQ 0 (
+        echo Installation de http-server...
+        npm install -g http-server
+    )
+    
+    echo.
+    echo Serveur CartaShop demarre sur http://localhost:%PORT%
+    echo Appuyez sur CTRL+C pour arreter le serveur.
+    echo.
+    
+    start "CartaShop Server" http://localhost:%PORT%/index.html
+    http-server -p %PORT%
+    goto END
+)
+
+REM Fallback: Utiliser le navigateur directement (mode offline)
+echo.
+echo [ATTENTION] Aucun serveur HTTP detecte!
+echo Ouverture du fichier en mode offline...
+echo.
+echo REMARQUE: Le localStorage et certaines fonctionnalites avancees
+echo pourraient ne pas fonctionner en mode offline.
+echo.
+
+start "" file:///%cd%\index.html
+
+:END
+echo.
+echo ========================================
+echo Merci d'avoir utilise CartaShop!
+echo Version: 2.0 Optimisee
+echo ========================================
+echo.
+pause
