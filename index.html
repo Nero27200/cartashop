@@ -635,6 +635,7 @@
             <div class="search-bar">
                 <input type="text" id="searchInput" placeholder="Chercher une carte, un joueur, un club...">
             </div>
+             <button id="themeToggleBtn" onclick="toggleTheme()" style="padding: 0.6rem 1.2rem; background: rgba(59, 130, 246, 0.2); border: 1px solid var(--accent); border-radius: 6px; color: var(--text); cursor: pointer; font-weight: 600; transition: all 0.3s ease; margin-right: 1rem;">Moon</button>
             <div class="header-stats">
                 <div class="stat">
                     <div class="stat-label">Ma Collection</div>
@@ -1465,6 +1466,50 @@
          return priceHistory[cardNumber] || [];
      }
      // PHASE 1 FEATURES END
+        
+     // PHASE 2a: Dark/Light Mode Toggle
+     let currentTheme = localStorage.getItem('theme') || 'dark';
+     
+     function initTheme() {
+         applyTheme(currentTheme);
+         updateThemeButton();
+     }
+     
+     function applyTheme(theme) {
+         const root = document.documentElement;
+         if (theme === 'light') {
+             root.style.setProperty('--primary', '#f3f4f6');
+             root.style.setProperty('--secondary', '#ffffff');
+             root.style.setProperty('--text', '#1f2937');
+             root.style.setProperty('--text-muted', '#6b7280');
+             document.body.style.background = 'linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%)';
+             currentTheme = 'light';
+         } else {
+             root.style.setProperty('--primary', '#1f2937');
+             root.style.setProperty('--secondary', '#111827');
+             root.style.setProperty('--text', '#f3f4f6');
+             root.style.setProperty('--text-muted', '#d1d5db');
+             document.body.style.background = 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)';
+             currentTheme = 'dark';
+         }
+         localStorage.setItem('theme', currentTheme);
+     }
+     
+     function toggleTheme() {
+         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+         applyTheme(newTheme);
+         updateThemeButton();
+     }
+     
+     function updateThemeButton() {
+         const btn = document.getElementById('themeToggleBtn');
+         if (btn) {
+             btn.textContent = currentTheme === 'dark' ? 'Sun' : 'Moon';
+             btn.style.background = currentTheme === 'dark' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 193, 7, 0.2)';
+         }
+     }
+     
+     initTheme();
     </script>
 </body>
 </html>
