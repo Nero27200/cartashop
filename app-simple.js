@@ -23,8 +23,7 @@ async function loadCards() {
     initializeApp();
   } catch (error) {
     console.error('[CartaShop] Erreur:', error);
-    displayError(error.message);
-  }
+  displayError('[Erreur réseau] ' + error.message + ' - Assurez-vous que le serveur est lancé (npm install -g http-server, puis http-server . -p 8080)');
 }
 
 function initializeApp() {
