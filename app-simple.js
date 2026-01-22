@@ -1,6 +1,5 @@
 // CartaShop v2.0 - Script d'initialisation simple et efficace
 // Compatible avec le HTML existant
-
 document.addEventListener('DOMContentLoaded', async function() {
   console.log('[CartaShop] Initialisation...');
   
@@ -9,7 +8,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     const response = await fetch('./cards.json');
     if (!response.ok) throw new Error('Erreur HTTP: ' + response.status);
     
-    const cards = await response.json();
+    const data = await response.json();
+    const cards = data.cards || data; // Support both nested and flat JSON
     console.log(`[CartaShop] ${cards.length} cartes chargees`);
     
     // Initialiser l'interface
@@ -42,18 +42,23 @@ function displayCards(cards, section = 'shop') {
     return;
   }
   
-  grid.innerHTML = cards.slice(0, 50).map(card => `
-    <div class="card" data-id="${card.id}">
+  if (!cards || cards.length === 0) {
+    grid.innerHTML = '<div style="padding: 2rem; text-align: center; color: #999;">Aucune carte a afficher</div>';
+    return;
+  }
+  
+  grid.innerHTML = cards.slice(0, 50).map((card, idx) => `
+    <div class="card" data-id="${card.id || card.number || idx}">
       <div class="card-image">
         ${card.image ? `<img src="${card.image}" alt="${card.name}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22280%22%3E%3Crect fill=%22%23333%22 width=%22200%22 height=%22280%22/%3E%3C/svg%3E'">` : '<div style="background:#444; width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#999;">No Image</div>'}
       </div>
       <div class="card-details">
         <h4>${card.name || 'Unknown'}</h4>
         <p>${card.club || ''}</p>
-        <span class="price">€${(card.price || 0).toFixed(2)}</span>
+        <span class="price">€${(card.price_avg || card.price || 0).toFixed(2)}</span>
       </div>
       <div class="card-actions">
-        <button onclick="addToCart(${card.id}, '${card.name}')">🛒 Ajouter</button>
+        <button onclick="addToCart(${card.id || card.number || idx}, '${card.name}')">🛒 Ajouter</button>
       </div>
     </div>
   `).join('');
@@ -73,6 +78,9 @@ function setupFilters(cards) {
   }
   
   if (typeFilter) {
+    const types = [...new Set(cards.map(c => c.type).filter(Boolean))];
+    typeFilter.innerHTML = '<option value="">Tous les types</option>' + 
+      types.map(type => `<option value="${type}">${type}</option>`).join('');
     typeFilter.addEventListener('change', () => applyFilters(cards));
   }
 }
@@ -88,7 +96,7 @@ function setupSearch(cards) {
       }
       
       const filtered = cards.filter(card => 
-        card.name.toLowerCase().includes(query) ||
+        (card.name && card.name.toLowerCase().includes(query)) ||
         (card.club && card.club.toLowerCase().includes(query))
       );
       displayCards(filtered);
@@ -104,6 +112,11 @@ function applyFilters(cards) {
     filtered = filtered.filter(c => c.club === clubFilter);
   }
   
+  const typeFilter = document.getElementById('typeFilter')?.value;
+  if (typeFilter) {
+    filtered = filtered.filter(c => c.type === typeFilter);
+  }
+  
   displayCards(filtered);
 }
 
@@ -111,6 +124,11 @@ function setupCart() {
   const cartBtn = document.querySelector('[aria-label="Ouvrir le panier"]');
   if (cartBtn) {
     cartBtn.addEventListener('click', () => openCart());
+  }
+  
+  const toggleCart = window.toggleCart;
+  if (typeof toggleCart === 'function') {
+    window.toggleCart = () => openCart();
   }
 }
 
@@ -146,6 +164,10 @@ function openCart() {
   modal.style.display = modal.style.display === 'none' ? 'flex' : 'none';
 }
 
+function toggleCart() {
+  openCart();
+}
+
 function removeFromCart(index) {
   cartItems.splice(index, 1);
   updateCartCount();
@@ -160,7 +182,7 @@ function updateStats(cards) {
   
   const avgPrice = document.getElementById('avgPrice');
   if (avgPrice && cards.length > 0) {
-    const avg = cards.reduce((sum, c) => sum + (c.price || 0), 0) / cards.length;
+    const avg = cards.reduce((sum, c) => sum + (c.price_avg || c.price || 0), 0) / cards.length;
     avgPrice.textContent = avg.toFixed(2) + '€';
   }
 }
@@ -188,14 +210,14 @@ function displayError(message) {
   const grid = document.getElementById('cardsGrid');
   if (grid) {
     grid.innerHTML = `<div style="padding: 2rem; text-align: center; color: #d32f2f;">
-      <h3>⚠️ Erreur</h3>
+      <h3>⚠️ Erreur de chargement</h3>
       <p>${message}</p>
       <p style="font-size: 0.9rem; color: #999;">Assurez-vous que le fichier cards.json existe dans le meme dossier.</p>
     </div>`;
   }
 }
 
-// Ajouter l'animation CSS
+// Ajouter les styles CSS si necessaire
 const style = document.createElement('style');
 style.textContent = `
   @keyframes slideIn {
@@ -268,4 +290,4 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-console.log('[CartaShop] Script carge avec succes');
+console.log('[CartaShop] Script charge avec succes');
