@@ -144,9 +144,9 @@ function updateCart() {
 }
 
 function updateStats() {
-  document.getElementById('shopTotal').textContent = AppState.allCards.length;
-  document.getElementById('collectionCount').textContent = AppState.myCollection.length;
-  document.getElementById('forSaleCount').textContent = AppState.forSaleCards.length;
+document.getElementById('shopTotal')?.textContent = AppState.allCards.length;
+  document.getElementById('collectionCount')?.textContent = AppState.myCollection.length;
+  document.getElementById('forSaleCount')?.textContent = AppState.forSaleCards.length;
   
   const avgPrice = AppState.allCards.length ? 
     (AppState.allCards.reduce((sum, c) => sum + (c.price_avg || c.price || 0), 0) / AppState.allCards.length).toFixed(2) : '0.00';
