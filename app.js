@@ -280,8 +280,8 @@ class CartaShopApp {
   }
 }
 
-let app = null;
+window.app = null; // Global reference for HTML onclick handlers
 window.addEventListener('load', () => {
-  app = new CartaShopApp();
+  window.app = new CartaShopApp();
   console.log('[CartaShop] Application lancée avec succès');
 });
