@@ -1382,6 +1382,89 @@
 
         // Start app
         init();
+        
+     // PHASE 1 FEATURES START
+     // Export Functionality
+     function exportCollectionJSON() {
+         const data = {
+             collection: myCollection,
+             forSale: myForSale,
+             exportDate: new Date().toISOString(),
+             appVersion: '1.1.0'
+         };
+         const json = JSON.stringify(data, null, 2);
+         downloadFile('cartashop-collection.json', json, 'application/json');
+     }
+
+     function exportCollectionCSV() {
+         let csv = 'Nom,Club,Type,Poste,Prix,Quantite,Statut\n';
+         myCollection.forEach(card => {
+             csv += `${sanitize(card.name)},${sanitize(card.club)},${sanitize(card.type)},${sanitize(card.position || '')},${card.price},${card.quantity},Collection\n`;
+         });
+         myForSale.forEach(card => {
+             csv += `${sanitize(card.name)},${sanitize(card.club)},${sanitize(card.type)},${sanitize(card.position || '')},${card.price},${card.quantity},AVendre\n`;
+         });
+         downloadFile('cartashop-collection.csv', csv, 'text/csv');
+     }
+
+     function downloadFile(filename, content, mimeType) {
+         const blob = new Blob([content], { type: mimeType });
+         const url = window.URL.createObjectURL(blob);
+         const a = document.createElement('a');
+         a.href = url;
+         a.download = filename;
+         document.body.appendChild(a);
+         a.click();
+         window.URL.revokeObjectURL(url);
+         document.body.removeChild(a);
+     }
+
+     // Stats Dashboard
+     function displayStatsDashboard() {
+         const totalCards = myCollection.length + myForSale.length;
+         const collectionValue = myCollection.reduce((sum, c) => sum + (c.price * c.quantity), 0);
+         const forSaleValue = myForSale.reduce((sum, c) => sum + (c.price * c.quantity), 0);
+         
+         return `<h3 style="color: var(--accent); margin: 1rem 0;">Dashboard Stats</h3>
+                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                     <div style="background: rgba(59,130,246,0.2); padding: 1rem; border-radius: 8px;"><div style="color: var(--text-muted);">Total</div><div style="font-size: 1.5rem; color: var(--accent); font-weight: 700;">${totalCards}</div></div>
+                     <div style="background: rgba(16,185,129,0.2); padding: 1rem; border-radius: 8px;"><div style="color: var(--text-muted);">Collection</div><div style="font-size: 1.5rem; color: var(--success); font-weight: 700;">${collectionValue.toFixed(2)}E</div></div>
+                     <div style="background: rgba(251,191,36,0.2); padding: 1rem; border-radius: 8px;"><div style="color: var(--text-muted);">A Vendre</div><div style="font-size: 1.5rem; color: var(--gold); font-weight: 700;">${forSaleValue.toFixed(2)}E</div></div>
+                 </div>`;
+     }
+
+     // Advanced Filters
+     function applyAdvancedFilters() {
+         const club = document.getElementById('clubFilter')?.value || '';
+         const type = document.getElementById('typeFilter')?.value || '';
+         const position = document.getElementById('positionFilter')?.value || '';
+         
+         filteredCards = allCards.filter(card => {
+             return (!club || card.club === club) &&
+                    (!type || card.type === type) &&
+                    (!position || card.position === position);
+         });
+         
+         displayCards(filteredCards);
+     }
+
+     // Price History
+     let priceHistory = {};
+
+     function recordPriceChange(cardNumber, newPrice) {
+         if (!priceHistory[cardNumber]) {
+             priceHistory[cardNumber] = [];
+         }
+         priceHistory[cardNumber].push({
+             price: newPrice,
+             date: new Date().toLocaleDateString()
+         });
+     }
+
+     function getPriceHistory(cardNumber) {
+         return priceHistory[cardNumber] || [];
+     }
+     // PHASE 1 FEATURES END
     </script>
 </body>
 </html>
