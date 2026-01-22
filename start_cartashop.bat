@@ -13,10 +13,8 @@ if not exist "index.html" (
     exit /b 1
 )
 
-if not exist "app-simple.js" (
-    echo [ERREUR] Fichier 'app-simple.js' introuvable!
-    pause
-    exit /b 1
+if not exist "app.js" (    echo [ERREUR] Fichier 'app-simple.js' introuvable!
+ echo [ERREUR] Fichier 'app.js' introuvable!    exit /b 1
 )
 
 if not exist "cards.json" (
